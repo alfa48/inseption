@@ -5,3 +5,4 @@
 ### stap 02 - criar uma máquina virtual, no virt manager com a iso do alpine
 ### stap 03 - intalar o alpine na máquina virtual, usar o comando bash ``setup-alpine``
 ### stap 04 - retirar o camentário de uma linha no arquivo em /etc/apk/repositores , acho que 'e a linha comunnity vás saber qual
+Intalar o docker com o comando bash ``apk add docker openrc``
