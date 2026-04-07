@@ -1,29 +1,31 @@
 #!/bin/bash
 
+# Script de entrada para inicializar o MariaDB, criar banco de dados e usuários
+
 set -e
 
-echo "Starting MariaDB initialization..."
+echo "Iniciando inicialização do MariaDB..."
 
-# Initialize MySQL data directory if it doesn't exist
+# Inicializar diretório de dados MySQL se não existir
 if [ ! -d "/var/lib/mysql/mysql" ]; then
-    echo "Initializing data directory..."
+    echo "Inicializando diretório de dados..."
     mysql_install_db --user=mysql --datadir=/var/lib/mysql > /dev/null
 fi
 
-# Start the server (no networking for setup)
-echo "Starting temporary MariaDB server for setup..."
+# Iniciar o servidor (sem rede para configuração)
+echo "Iniciando servidor MariaDB temporário para configuração..."
 mysqld --skip-networking --socket=/run/mysqld/mysqld.sock --user=mysql &
 pid="$!"
 
-# Wait for MariaDB to be ready
-echo "Waiting for MariaDB to be ready..."
+# Aguardar o MariaDB estar pronto
+echo "Aguardando o MariaDB estar pronto..."
 until mysqladmin --socket=/run/mysqld/mysqld.sock ping >/dev/null 2>&1; do
     sleep 1
 done
-echo "MariaDB is ready!"
+echo "MariaDB está pronto!"
 
-# Run setup SQL: create database and users
-echo "Running setup SQL..."
+# Executar SQL de configuração: criar banco de dados e usuários
+echo "Executando SQL de configuração..."
 mysql --socket=/run/mysqld/mysqld.sock -u root << EOF
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
@@ -32,13 +34,13 @@ GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
 FLUSH PRIVILEGES;
 EOF
 
-# Shut down temporary server
-echo "Shutting down temporary MariaDB..."
+# Desligar servidor temporário
+echo "Desligando MariaDB temporário..."
 mysqladmin --socket=/run/mysqld/mysqld.sock -u root -p"${MYSQL_ROOT_PASSWORD}" shutdown
 
-# Wait for shutdown
+# Aguardar desligamento
 wait "$pid" || true
 
-# Start MariaDB normally (with networking)
-echo "Initialization complete. Starting MariaDB..."
+# Iniciar MariaDB normalmente (com rede)
+echo "Inicialização completa. Iniciando MariaDB..."
 exec mysqld --user=mysql --datadir=/var/lib/mysql --socket=/run/mysqld/mysqld.sock
