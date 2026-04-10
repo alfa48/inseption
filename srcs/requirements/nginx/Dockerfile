@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
     openssl \
     && rm -rf /var/lib/apt/lists/*
 
-# Garantir que nginx seja executado como www-data com UID correto
+# Garantir que nginx seja executado como www-data com UID(user id) correto
 RUN usermod -u 33 www-data && groupmod -g 33 www-data
 
 # Criar diretório para certificados SSL

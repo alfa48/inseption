@@ -1,20 +1,20 @@
 #!/bin/bash
 set -e
 
-# Ensure SSL directory exists
+# Garantir que o diretório SSL exista
 mkdir -p /etc/nginx/ssl
 
-# Default domain if not provided
+# Domínio padrão se não for fornecido
 : "${DOMAIN_NAME:=localhost}"
 
-# Generate SSL certificate if it doesn't exist
+# Gerar o certificado SSL se ele não existir
 if [ ! -f /etc/nginx/ssl/nginx.crt ]; then
     echo "Generating self-signed SSL certificate for ${DOMAIN_NAME}..."
 
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
         -keyout /etc/nginx/ssl/nginx.key \
         -out /etc/nginx/ssl/nginx.crt \
-        -subj "/C=US/ST=State/L=City/O=Organization/CN=${DOMAIN_NAME}"
+        -subj "/C=AO/ST=Luanda/L=Belas/O=Easy/CN=${DOMAIN_NAME}"
 
     chmod 600 /etc/nginx/ssl/nginx.key
     chmod 644 /etc/nginx/ssl/nginx.crt
