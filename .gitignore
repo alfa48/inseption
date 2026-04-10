@@ -3,3 +3,4 @@ secrets/
 
 # Ignore environment files
 **/.env
+.env
