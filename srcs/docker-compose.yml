@@ -1,9 +1,9 @@
 services:
-  mariadb:
+  mdb_inception:
     build: 
       context: requirements/mariadb
-    image: mariadb:inception
-    container_name: mariadb
+    image: mdb_inception
+    container_name: mdb_inception
     networks:
       - inception-network
     volumes:
@@ -18,19 +18,19 @@ services:
       - db_password
     restart: always
 
-  wordpress:
+  wp_inception:
     build:
       context: requirements/wordpress
-    image: wordpress:inception
-    container_name: wordpress
+    image: wp_inception
+    container_name: wp_inception
     depends_on:
-      - mariadb
+      - mdb_inception
     networks:
       - inception-network
     volumes:
       - wordpress_data:/var/www/html
     environment:
-      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_HOST: mdb_inception
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
       WORDPRESS_DB_USER: ${MYSQL_USER}
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
@@ -39,13 +39,13 @@ services:
       - db_password
     restart: always
 
-  nginx:
+  ngx_inception:
     build:
       context: requirements/nginx
-    image: nginx:inception
-    container_name: nginx
+    image: ngx_inception
+    container_name: ngx_inception
     depends_on:
-      - wordpress
+      - wp_inception
     networks:
       - inception-network
     volumes:
@@ -67,13 +67,13 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/${USER}/data/mariadb
+      device: /home/${LOGIN}/data/mariadb
   wordpress_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/${USER}/data/wordpress
+      device: /home/${LOGIN}/data/wordpress
 
 secrets:
   db_root_password:

@@ -1,8 +1,7 @@
 #!/bin/bash
+set -ex
 
-set -e
-
-echo "Iniciando MariaDB..."
+echo "Iniciando verificação do MariaDB..."
 
 # Ler secrets
 # Ler secrets (usar caminhos padrão caso as variáveis de ambiente não estejam definidas)
@@ -25,10 +24,12 @@ mkdir -p /var/log/mysql
 chown -R mysql:mysql /var/log/mysql
 
 # Verificar se já foi inicializado
-if [ ! -d "/var/lib/mysql/mysql" ]; then
-    echo "Primeira inicialização do banco..."
+if [ ! -f "/var/lib/mysql/.setup_done" ]; then
+    echo "Iniciando configuração de primeira execução..."
 
-    mysql_install_db --user=mysql --datadir=/var/lib/mysql > /dev/null
+    if [ ! -d "/var/lib/mysql/mysql" ]; then
+        mysql_install_db --user=mysql --datadir=/var/lib/mysql > /dev/null
+    fi
 
     echo "Iniciando MariaDB temporário..."
     mysqld --skip-networking --socket=/var/run/mysqld/mysqld.sock --user=mysql &
@@ -54,9 +55,10 @@ EOF
 
     wait "$pid" || true
 
+    touch /var/lib/mysql/.setup_done
     echo "Configuração concluída!"
 else
-    echo "Banco já inicializado — pulando configuração"
+    echo "Ficheiro .setup_done encontrado — pulando configuração"
 fi
 
 # Iniciar MariaDB normalmente

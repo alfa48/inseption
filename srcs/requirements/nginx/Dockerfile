@@ -1,7 +1,7 @@
 FROM debian:bookworm
 
 # Instalar nginx, openssl e envsubst
-RUN apt-get -o Acquire::ForceIPv4=true update && apt-get install -y \
+RUN apt-get update && apt-get install -y \
     nginx \
     openssl \
     gettext-base \
