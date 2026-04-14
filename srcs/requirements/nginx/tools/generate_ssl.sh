@@ -1,8 +1,16 @@
 #!/bin/bash
 set -e
 
+# Renderizar o template nginx.conf com envsubst antes de iniciar
+if [ -f /etc/nginx/nginx.conf.template ]; then
+    echo "Rendering nginx.conf from template..."
+    envsubst '${DOMAIN_NAME}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
+fi
+
 # Garantir que o diretório SSL exista
 mkdir -p /etc/nginx/ssl
+# Ensure WordPress files are readable by www-data
+chown -R www-data:www-data /var/www/html
 
 # Domínio padrão se não for fornecido
 : "${DOMAIN_NAME:=localhost}"
@@ -23,6 +31,8 @@ if [ ! -f /etc/nginx/ssl/nginx.crt ]; then
 else
     echo "SSL certificate already exists. Skipping generation."
 fi
+
+
 
 # Test nginx configuration before starting
 echo "Testing nginx configuration..."

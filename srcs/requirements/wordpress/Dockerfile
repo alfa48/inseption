@@ -1,7 +1,7 @@
 FROM debian:bookworm
 
 # Instalar PHP-FPM e extensões necessárias
-RUN apt-get update && apt-get install -y \
+RUN apt-get -o Acquire::ForceIPv4=true update && apt-get install -y \
   php8.2-fpm \
   php8.2-mysql \
   php8.2-curl \

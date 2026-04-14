@@ -4,9 +4,22 @@ set -e
 
 echo "Iniciando MariaDB..."
 
+# Ler secrets
+# Ler secrets (usar caminhos padrão caso as variáveis de ambiente não estejam definidas)
+MYSQL_ROOT_PASSWORD_FILE=${MYSQL_ROOT_PASSWORD_FILE:-/run/secrets/db_root_password}
+MYSQL_PASSWORD_FILE=${MYSQL_PASSWORD_FILE:-/run/secrets/db_password}
+
+if [ -f "$MYSQL_ROOT_PASSWORD_FILE" ]; then
+    MYSQL_ROOT_PASSWORD=$(cat "$MYSQL_ROOT_PASSWORD_FILE")
+fi
+
+if [ -f "$MYSQL_PASSWORD_FILE" ]; then
+    MYSQL_PASSWORD=$(cat "$MYSQL_PASSWORD_FILE")
+fi
+
 # Garantir diretórios necessários
-mkdir -p /run/mysqld
-chown -R mysql:mysql /run/mysqld
+mkdir -p /var/run/mysqld
+chown -R mysql:mysql /var/run/mysqld
 
 mkdir -p /var/log/mysql
 chown -R mysql:mysql /var/log/mysql
@@ -18,17 +31,17 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     mysql_install_db --user=mysql --datadir=/var/lib/mysql > /dev/null
 
     echo "Iniciando MariaDB temporário..."
-    mysqld --skip-networking --socket=/run/mysqld/mysqld.sock --user=mysql &
+    mysqld --skip-networking --socket=/var/run/mysqld/mysqld.sock --user=mysql &
     pid="$!"
 
     echo "Aguardando MariaDB..."
-    until mysqladmin --socket=/run/mysqld/mysqld.sock ping >/dev/null 2>&1; do
+    until mysqladmin --socket=/var/run/mysqld/mysqld.sock ping >/dev/null 2>&1; do
         sleep 1
     done
 
     echo "Configurando banco..."
 
-    mysql --socket=/run/mysqld/mysqld.sock -u root << EOF
+    mysql --socket=/var/run/mysqld/mysqld.sock -u root <<EOF
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
 CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
@@ -37,7 +50,7 @@ FLUSH PRIVILEGES;
 EOF
 
     echo "Parando MariaDB temporário..."
-    mysqladmin --socket=/run/mysqld/mysqld.sock -u root -p"${MYSQL_ROOT_PASSWORD}" shutdown
+    mysqladmin --socket=/var/run/mysqld/mysqld.sock -u root -p"${MYSQL_ROOT_PASSWORD}" shutdown
 
     wait "$pid" || true
 
@@ -47,5 +60,8 @@ else
 fi
 
 # Iniciar MariaDB normalmente
-echo "🚀 Iniciando MariaDB (modo normal)..."
-exec mysqld --user=mysql --datadir=/var/lib/mysql --socket=/run/mysqld/mysqld.sock
+echo "Iniciando MariaDB (modo normal)..."
+exec mysqld --user=mysql --datadir=/var/lib/mysql \
+    --socket=/var/run/mysqld/mysqld.sock \
+    --bind-address=0.0.0.0 \
+    --port=3306
