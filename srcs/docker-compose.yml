@@ -33,10 +33,17 @@ services:
       WORDPRESS_DB_HOST: mdb_inception
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
       WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_USER_EDITOR: ${WP_EDITOR_USER}
+      WORDPRESS_USER_ADMIN: ${WP_ADMIN_USER}
+      WORDPRESS_USER_PWD_EDITOR_FILE: /run/secrets/wp_pwd_editor
+      WORDPRESS_USER_PWD_ADMIN_FILE: /run/secrets/wp_pwd_admin
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
+
       WORDPRESS_TABLE_PREFIX: wp_
     secrets:
       - db_password
+      - wp_pwd_editor
+      - wp_pwd_admin
     restart: always
 
   ngx_inception:
@@ -80,3 +87,7 @@ secrets:
     file: ../secrets/db_root_password.txt
   db_password:
     file: ../secrets/db_password.txt
+  wp_pwd_editor:
+    file: ../secrets/wp_pwd_editor.txt
+  wp_pwd_admin:
+    file: ../secrets/wp_pwd_admin.txt
