@@ -61,9 +61,15 @@ else
     echo "Ficheiro .setup_done encontrado — pulando configuração"
 fi
 
-# Iniciar MariaDB normalmente
-echo "Iniciando MariaDB (modo normal)..."
-exec mysqld --user=mysql --datadir=/var/lib/mysql \
+echo "Iniciando MariaDB (modo otimizado)..."
+exec mysqld --user=mysql \
+    --datadir=/var/lib/mysql \
     --socket=/var/run/mysqld/mysqld.sock \
     --bind-address=0.0.0.0 \
-    --port=3306
+    --port=3306 \
+    --innodb-buffer-pool-size=32M \
+    --innodb-log-file-size=16M \
+    --innodb-flush-log-at-trx-commit=2 \
+    --max_connections=10 \
+    --skip-name-resolve \
+    --performance_schema=OFF
