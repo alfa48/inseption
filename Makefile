@@ -1,4 +1,4 @@
-# Variáveis
+# variaveis
 LOGIN = $(shell whoami)
 ifeq ($(LOGIN), root)
 	LOGIN = $(shell logname)
@@ -9,7 +9,7 @@ DATA_DIR = /home/$(LOGIN)/data
 
 all: build up
 
-# Create data directories
+# cirar pastas de dados
 $(DATA_DIR)/mariadb:
 	mkdir -p $(DATA_DIR)/mariadb
 

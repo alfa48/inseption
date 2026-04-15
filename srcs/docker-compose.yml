@@ -32,6 +32,8 @@ services:
     environment:
       WORDPRESS_DB_HOST: mdb_inception
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      EDITOR_EMAIL: ${EDITOR_EMAIL}
       WORDPRESS_DB_USER: ${MYSQL_USER}
       WORDPRESS_USER_EDITOR: ${WP_EDITOR_USER}
       WORDPRESS_USER_ADMIN: ${WP_ADMIN_USER}
@@ -39,7 +41,6 @@ services:
       WORDPRESS_USER_PWD_ADMIN_FILE: /run/secrets/wp_pwd_admin
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
 
-      WORDPRESS_TABLE_PREFIX: wp_
     secrets:
       - db_password
       - wp_pwd_editor
@@ -61,7 +62,6 @@ services:
       DOMAIN_NAME: ${DOMAIN_NAME}
     restart: always
     ports:
-    # - "80:80"
       - "443:443"
 
 networks:

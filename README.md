@@ -133,11 +133,108 @@ Key aspects:
 
 # Instructions
 
+## Prerequisites
+
+- Docker and Docker Compose installed
+- `sudo` available for volume operations
+- Access to the domain `manandre.42.fr` (port `443` — HTTPS)
+
+---
+
+## Required Structure
+
+Before starting, make sure you have the following files and folders created at the root of the project:
+
+### 1. `.env` File
+Create the file `srcs/.env` with the following environment variables:
+
+```env
+MYSQL_DATABASE=wpress_database
+MYSQL_USER=wpress_user
+WP_ADMIN_USER=masterUser
+WP_EDITOR_USER=user
+EDITOR_EMAIL=ole@editor.com
+ADMIN_EMAIL=ola@admin.com
+```
+
+### 2. `secrets/` Folder
+Create a `secrets/` folder at the **root of the project** containing the sensitive credential files (passwords, etc.) required by the services.
+
+---
+
+## Available Commands
+
+| Command          | Description                                                         |
+|------------------|---------------------------------------------------------------------|
+| `make`           | Builds the images and starts all services                           |
+| `make build`     | Creates the data folders and builds the Docker images               |
+| `make up`        | Starts the services in *detached* mode                              |
+| `make down`      | Stops the services                                                  |
+| `make clean`     | Stops services, removes containers, images, and runs a system prune |
+| `make fclean`    | Deep clean — removes everything, including volumes and local data   |
+| `make re`        | Runs `fclean` followed by `all` (full rebuild)                      |
+| `make logs`      | Shows logs for all services in real time                            |
+| `make log-db`    | Logs for the MariaDB service only                                   |
+| `make log-wp`    | Logs for the WordPress service only                                 |
+| `make log-nginx` | Logs for the NGINX service only                                     |
+
+---
+
+### How to Start the Project
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd <project-name>
+
+# 2. Create the environment variables file
+cp srcs/.env.example srcs/.env  # or create it manually as shown above
+
+# 3. Create the secrets folder with the required credentials
+mkdir -p secrets
+
+# 4. Build and start the services
+make
+```
+
+Once running, access the project at:
+
+```
+https://manandre.42.fr
+```
+
+>  The application is available **only via HTTPS on port 443**. Make sure the domain `manandre.42.fr` resolves to your host — you may need to add an entry to `/etc/hosts` if running locally.
 
 # Resources
 
 ## Session Resource
 - [Docker Official Documentation](https://docs.docker.com/)
-- [Inception Guide 42 Project Part I](https://medium.com/@ssterdev/inception-guide-42-project-part-i-7e3af15eb671)
-- [Inception 42 Project Part II](https://medium.com/@ssterdev/inception-42-project-part-ii-19a06962cf3b)
-- [Docker Nginx WordPress MariaDB Tutorial Inception42](https://dev.to/alejiri/docker-nginx-wordpress-mariadb-tutorial-inception42-1eok)
+- [WordPress Official Documentation](https://pt-ao.wordpress.org/)
+- [Nginx Official Documenatation](https://nginx.org/)
+- [Inception Guide](https://medium.com/@ssterdev/inception-guide-42-project-part-i-7e3af15eb671)
+
+## AI Usage
+
+AI was used in specific parts of this project to support development and learning — not to replace understanding of the concepts involved.
+
+---
+
+### Tasks where AI was used
+
+| Area | Task |
+|------|------|
+| **Docker & Compose** | Helped debug `docker-compose.yml` configuration and understand service dependencies (`depends_on`, healthchecks) |
+| **NGINX** | Assisted in writing the NGINX config for TLS (SSL certificate setup, HTTPS-only on port 443, reverse proxy to WordPress) |
+| **MariaDB** | Helped structure the database initialization scripts and troubleshoot connection issues between WordPress and MariaDB |
+| **WordPress** | Supported the `wp-config.php` setup and WP-CLI automation for installing WordPress non-interactively via entrypoint scripts |
+| **Secrets management** | Advised on how to handle sensitive credentials using Docker secrets and environment variable separation |
+| **Debugging** | Used to interpret Docker error logs and diagnose container startup failures |
+---
+
+### Disclaimer
+
+- Every AI suggestion was **manually reviewed, tested, and validated** before being used
+- AI was only used for tasks I already had enough context to **critically evaluate the output**
+- Whenever AI produced something I didn't fully understand, I researched it independently or discussed it with peers before accepting it
+- No AI-generated code or configuration was included without being able to **explain and justify** every part of it
+- The final understanding of the infrastructure, all architectural decisions, and responsibility for the project remain entirely with the author

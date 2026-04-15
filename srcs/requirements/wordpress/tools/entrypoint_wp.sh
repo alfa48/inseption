@@ -7,8 +7,12 @@ echo "Iniciando setup WordPress..."
 
 # ler secrets
 WORDPRESS_DB_PASSWORD=$(cat "$WORDPRESS_DB_PASSWORD_FILE")
+
 ADMIN_PWD=$(cat "$WORDPRESS_USER_PWD_ADMIN_FILE")
+ADMIN_EMAIL=${ADMIN_EMAIL}
+
 EDITOR_PWD=$(cat "$WORDPRESS_USER_PWD_EDITOR_FILE")
+EDITOR_EMAIL=${EDITOR_EMAIL}
 
 # baixar wordpress se não existir
 if [ ! -f "$WP_PATH/wp-config.php" ]; then
@@ -38,7 +42,6 @@ EOF
     chown -R www-data:www-data "$WP_PATH"
 fi
 
-# 🚨 AQUI ESTÁ A CHAVE
 echo "Esperando MariaDB subir..."
 sleep 15
 
@@ -48,17 +51,17 @@ if ! wp core is-installed --allow-root --path="$WP_PATH"; then
 
     wp core install \
         --url="https://manandre.42.fr" \
-        --title="Inception" \
+        --title="Blog manandre" \
         --admin_user="$WORDPRESS_USER_ADMIN" \
         --admin_password="$ADMIN_PWD" \
-        --admin_email="admin@admin.com" \
+        --admin_email="$ADMIN_EMAIL" \
         --skip-email \
         --allow-root \
         --path="$WP_PATH"
 
     wp user create \
         "$WORDPRESS_USER_EDITOR" \
-        "editor@editor.com" \
+        "$EDITOR_EMAIL" \
         --role=editor \
         --user_pass="$EDITOR_PWD" \
         --allow-root \
@@ -67,5 +70,5 @@ fi
 
 echo "WordPress pronto!"
 
-# 🚀 ISSO TEM QUE SEMPRE EXECUTAR
+# EXECUTAR o PHP-FPM
 exec php-fpm8.2 -F
