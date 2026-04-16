@@ -43,7 +43,7 @@ EOF
 fi
 
 echo "Esperando MariaDB subir..."
-sleep 15
+sleep 5
 
 # instalar wordpress
 if ! wp core is-installed --allow-root --path="$WP_PATH"; then
